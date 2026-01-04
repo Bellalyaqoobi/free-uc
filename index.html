@@ -7,103 +7,113 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- استفاده از CDN مطمئن‌تر برای XLSX -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-    <div class="notification" id="notification"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Font Awesome برای آیکون‌ها -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- SheetJS برای اکسل -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        <sc ipt=src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></scr
+        <!-- Supabase Client
+        <sc ipt=src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></scr
+pt>
+</h
+ad>
+<b
+         div c=ass="notificat on= id="notification"></
     
-    <!-- مدال پیش‌نمایش چاپ -->
-    <div class="print-preview-modal" id="printPreviewModal">
-        <div class="print-preview-content">
-            <div class="print-preview-header">
-                <h3>پیش‌نمایش چاپ</h3>
-                <button class="close-preview" id="closePreviewBtn">&times;</button>
-            </div>
-            <div class="print-preview-body" id="printPreviewBody">
-                <!-- محتوای چاپ اینجا قرار می‌گیرد -->
-            </div>
-            <div class="action-buttons">
-                <button id="printBtn" class="btn btn-print"><i class="fas fa-print"></i> چاپ</button>
-                <button id="closeModalBtn" class="btn btn-logout">بستن</button>
-            </div>
-        </div>
-    </div>
+        <!-- مدال پیش‌نمایش چاپ
+         div c=ass="print-preview-mo al= id="printPreviewMod
+             div c=ass="print-preview-conte
+                 div c=ass="print-preview-head
+                    پیش‌نمایش چاپ چاپ<
+                    <bu ton c=ass="close-prev ew= id="closePreviewBtn">&times;</but
+                </
+                 div c=ass="print-preview-b dy= id="printPreviewBo
+                    <!-- محتوای چاپ اینجا قرار می‌گیرد
+                </
+                 div c=ass="action-butto
+                    <bu to= id="print tn" c=ass="btn btn-print ><i c=ass="fas fa-print"> چاپ چاپ</but
+                    <bu to= id="closeModal tn" c=ass="btn btn-logoبستنبستن</but
+                </
+            </
+        </
     
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-shopping-cart"></i> سیستم مدیریت ثبت خرید</h1>
-            <p>سامانه ثبت خرید کالا - نمایش به مدیر و کاربر - با قابلیت خروجی اکسل و چاپ</p>
-            <small style="opacity: 0.7; font-size: 0.9rem; margin-top: 10px; display: block;">
-                <i class="fas fa-database"></i> پشتیبانی از پایگاه داده Supabase
-            </small>
-        </header>
+         div c=ass="contain
+            <hea
+                <h ><i c=ass="fas fa-shopping-cart"> سیستم مدیریت ثبت خریدخرید<
+               سامانه ثبت خرید کالا - نمایش به مدیر و کاربر - با قابلیت خروجی اکسل و چاپ چاپ
+                <s all s=yle="opa: ty:; .7; font-: ze: 0.; em; margin: op: ; px; dis: ay: bloc
+                    <i c=ass="fas fa-database"> پشتیبانی از پایگاه داده Supabase
+                </sm
+            </hea
         
-        <div id="authSection" class="auth-container">
-            <div class="auth-box">
-                <h2 class="auth-title">ورود به سیستم</h2>
-                <div class="form-group">
-                    <label for="username">نام کاربری</label>
-                    <input type="text" id="username" placeholder="نام کاربری خود را وارد کنید">
-                </div>
-                <div class="form-group">
-                    <label for="password">کلمه عبور</label>
-                    <input type="password" id="password" placeholder="کلمه عبور خود را وارد کنید">
-                </div>
-                <div class="form-group">
-                    <label for="role">نقش کاربری</label>
-                    <select id="role">
-                        <option value="user">کاربر عادی</option>
-                        <option value="admin">مدیر سیستم</option>
-                    </select>
-                </div>
-                <button id="loginBtn" class="btn">
-                    <span id="loginText">ورود به سیستم</span>
-                    <span id="loginLoading" class="loading hidden"></span>
-                </button>
+             di= id="authSect on" c=ass="auth-contain
+                 div c=ass="auth-b
+                    <h2 c=ass="auth-titورود به سیستمیستم<
+                     div c=ass="form-gro
+                        <l bel=for="usernaنام کاربریربری</la
+                        <i put =ype="t xt= id="usern me" placeho=der="نام کاربری خود را وارد کن
+                    </
+                     div c=ass="form-gro
+                        <l bel=for="passwoکلمه عبورعبور</la
+                        <i put =ype="passw rd= id="passw rd" placeho=der="کلمه عبور خود را وارد کن
+                    </
+                     div c=ass="form-gro
+                        <l bel=for="roنقش کاربریربری</la
+                        <se ec= id="ro
+                            <op ion v=lue="usکاربر عادیعادی</opt
+                            <op ion v=lue="admمدیر سیستمیستم</opt
+                        </sel
+                    </
+                    <bu to= id="login tn" c=ass="b
+                        < pa= id="loginTeورود به سیستمیستم</s
+                        < pa= id="loginLoad ng" c=ass="loading hidden"></s
+                    </but
                 
-                <div class="info-box" style="margin-top: 25px;">
-                    <i class="fas fa-info-circle"></i>
-                    <div>
-                        <strong>SILENT</strong><br>
-                       <br>
+                     div c=ass="info- ox" s=yle="margin: op: 25p
+                        <i c=ass="fas fa-info-circle">
+                        <
+                            <strSILENTLENT</strong>
+                           
                        ساخته شده توسط SILENT BELL
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </
+                    </
+                </
+            </
         
-        <div id="appSection" class="hidden">
-            <div class="user-info">
-                <div class="user-details">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <div>
-                        <h3 id="currentUserName">نام کاربر</h3>
-                        <p id="currentUserEmail">ایمیل کاربر</p>
-                    </div>
-                    <span id="currentUserRole" class="user-role">نقش</span>
-                </div>
-                <div class="timer">
-                    <i class="far fa-clock"></i> 
-                    زمان تا بروزرسانی جدول: <span id="countdown">24:00:00</span>
-                </div>
-                <button id="logoutBtn" class="btn btn-logout">خروج از سیستم</button>
-            </div>
+             di= id="appSect on" c=ass="hidd
+                 div c=ass="user-in
+                     div c=ass="user-detai
+                         div c=ass="user-ava ar= id="userAvatUr">U</
+                        <
+                            <h= id="currentUserNaنام کاربراربر<
+                            <= id="currentUserEmaایمیل کاربراربر
+                        </
+                        < pa= id="currentUserR le" c=ass="user-roنقش>نقش</s
+                    </
+                     div c=ass="tim
+                        <i c=ass="far fa-clock"> 
+                    زمان تا بروزرسانی جدول: ول: < pa= id="countdo24:00:000:00</s
+                    </
+                    <bu to= id="logout tn" c=ass="btn btn-logoخروج از سیستمیستم</but
+                </
             
-            <div class="content" id="userContent">
-                <div class="tabs">
-                    <div class="tab active" data-tab="addPurchase">
-                        <span><i class="fas fa-plus-circle"></i> ثبت خرید جدید</span>
-                    </div>
-                    <div class="tab" data-tab="myPurchases">
-                        <span><i class="fas fa-list"></i> خریدهای ثبت شده توسط من</span>
-                    </div>
-                </div>
+                 div c=ass="cont nt= id="userConte
+                     div c=ass="ta
+                         div c=ass="tab act ve" data=tab="addPurcha
+                            <spa ><i c=ass="fas fa-plus-circle"> ثبت خرید جدیدجدید</s
+                        </
+                         div c=ass=" ab" data=tab="myPurchas
+                            <spa ><i c=ass="fas fa-list"> خریدهای ثبت شده توسط منط من</s
+                        </
+                    </
                 
-                <div class="tab-content active" id="addPurchase">
-                    <div class="form-container">
-                        <h3><i class="fas fa-plus-circle"></i> فرم ثبت خرید جدید</h3>
+                     div c=ass="tab-content act ve= id="addPurcha
+                         div c=ass="form-contain
+                            <h ><i c=ass="fas fa-plus-circle"> فرم ثبت خرید جدیدجدید<
                         <p style="margin-bottom: 20px; color: #666;">خریدهای شما هم برای خودتان و هم برای مدیر سیستم نمایش داده می‌شود.</p>
                         <div class="form-row">
                             <div class="form-group">
