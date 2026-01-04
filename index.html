@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم ثبت خرید - نمایش هم به مدیر و هم به کاربر</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- استفاده از CDN مطمئن‌تر برای XLSX -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+    
+    <!-- مدال پیش‌نمایش چاپ -->
+    <div class="print-preview-modal" id="printPreviewModal">
+        <div class="print-preview-content">
+            <div class="print-preview-header">
+                <h3>پیش‌نمایش چاپ</h3>
+                <button class="close-preview" id="closePreviewBtn">&times;</button>
+            </div>
+            <div class="print-preview-body" id="printPreviewBody">
+                <!-- محتوای چاپ اینجا قرار می‌گیرد -->
+            </div>
+            <div class="action-buttons">
+                <button id="printBtn" class="btn btn-print"><i class="fas fa-print"></i> چاپ</button>
+                <button id="closeModalBtn" class="btn btn-logout">بستن</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shopping-cart"></i> سیستم مدیریت ثبت خرید</h1>
+            <p>سامانه ثبت خرید کالا - نمایش به مدیر و کاربر - با قابلیت خروجی اکسل و چاپ</p>
+            <small style="opacity: 0.7; font-size: 0.9rem; margin-top: 10px; display: block;">
+                <i class="fas fa-database"></i> پشتیبانی از پایگاه داده Supabase
+            </small>
+        </header>
+        
+        <div id="authSection" class="auth-container">
+            <div class="auth-box">
+                <h2 class="auth-title">ورود به سیستم</h2>
+                <div class="form-group">
+                    <label for="username">نام کاربری</label>
+                    <input type="text" id="username" placeholder="نام کاربری خود را وارد کنید">
+                </div>
+                <div class="form-group">
+                    <label for="password">کلمه عبور</label>
+                    <input type="password" id="password" placeholder="کلمه عبور خود را وارد کنید">
+                </div>
+                <div class="form-group">
+                    <label for="role">نقش کاربری</label>
+                    <select id="role">
+                        <option value="user">کاربر عادی</option>
+                        <option value="admin">مدیر سیستم</option>
+                    </select>
+                </div>
+                <button id="loginBtn" class="btn">
+                    <span id="loginText">ورود به سیستم</span>
+                    <span id="loginLoading" class="loading hidden"></span>
+                </button>
+                
+                <div class="info-box" style="margin-top: 25px;">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>SILENT</strong><br>
+                       <br>
+                       ساخته شده توسط SILENT BELL
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="appSection" class="hidden">
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div>
+                        <h3 id="currentUserName">نام کاربر</h3>
+                        <p id="currentUserEmail">ایمیل کاربر</p>
+                    </div>
+                    <span id="currentUserRole" class="user-role">نقش</span>
+                </div>
+                <div class="timer">
+                    <i class="far fa-clock"></i> 
+                    زمان تا بروزرسانی جدول: <span id="countdown">24:00:00</span>
+                </div>
+                <button id="logoutBtn" class="btn btn-logout">خروج از سیستم</button>
+            </div>
+            
+            <div class="content" id="userContent">
+                <div class="tabs">
+                    <div class="tab active" data-tab="addPurchase">
+                        <span><i class="fas fa-plus-circle"></i> ثبت خرید جدید</span>
+                    </div>
+                    <div class="tab" data-tab="myPurchases">
+                        <span><i class="fas fa-list"></i> خریدهای ثبت شده توسط من</span>
+                    </div>
+                </div>
+                
+                <div class="tab-content active" id="addPurchase">
+                    <div class="form-container">
+                        <h3><i class="fas fa-plus-circle"></i> فرم ثبت خرید جدید</h3>
+                        <p style="margin-bottom: 20px; color: #666;">خریدهای شما هم برای خودتان و هم برای مدیر سیستم نمایش داده می‌شود.</p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="itemName">نام کالا *</label>
+                                <input type="text" id="itemName" placeholder="نام کالا را وارد کنید">
+                            </div>
+                            <div class="form-group">
+                                <label for="buyerName">نام خریدار *</label>
+                                <input type="text" id="buyerName" placeholder="نام خریدار را وارد کنید">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="itemPrice">قیمت (افغانی ) *</label>
+                                <input type="number" id="itemPrice" placeholder="قیمت را وارد کنید" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="itemCategory">دسته‌بندی</label>
+                                <select id="itemCategory">
+                                    <option value="الکترونیک">الکترونیک</option>
+                                    <option value="پوشاک">پوشاک</option>
+                                    <option value="خواروبار">خواروبار</option>
+                                    <option value="کالای دیجیتال">کالای دیجیتال</option>
+                                    <option value="لوازم خانگی">لوازم خانگی</option>
+                                    <option value="سایر">سایر</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="submitPurchase" class="btn">
+                            <span id="submitText">ثبت خرید</span>
+                            <span id="submitLoading" class="loading hidden"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-history"></i> آخرین خریدهای ثبت‌شده توسط شما</h3>
+                            <div class="excel-actions">
+                                <button id="exportUserRecentExcel" class="btn btn-excel">
+                                    <i class="fas fa-file-excel"></i> خروجی اکسل خریدهای اخیر
+                                </button>
+                                <button id="printUserRecent" class="btn btn-print">
+                                    <i class="fas fa-print"></i> چاپ خریدهای اخیر
+                                </button>
+                            </div>
+                        </div>
+                        <table id="recentPurchasesTable">
+                            <thead>
+                                <tr>
+                                    <th>ردیف</th>
+                                    <th>نام کالا</th>
+                                    <th>نام خریدار</th>
+                                    <th>قیمت (افغانی )</th>
+                                    <th>دسته‌بندی</th>
+                                    <th>تاریخ ثبت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- داده‌ها توسط JavaScript پر می‌شود -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="myPurchases">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-list"></i> تمام خریدهای ثبت‌شده توسط شما</h3>
+                            <div class="excel-actions">
+                                <button id="exportUserAllExcel" class="btn btn-excel">
+                                    <i class="fas fa-file-excel"></i> خروجی اکسل تمام خریدهای من
+                                </button>
+                                <button id="printUserAll" class="btn btn-print">
+                                    <i class="fas fa-print"></i> چاپ تمام خریدهای من
+                                </button>
+                            </div>
+                        </div>
+                        <p style="margin-bottom: 15px; color: #666; padding: 0 25px;">این خریدها هم برای شما و هم برای مدیر سیستم قابل مشاهده هستند.</p>
+                        <table id="allPurchasesTable">
+                            <thead>
+                                <tr>
+                                    <th>ردیف</th>
+                                    <th>نام کالا</th>
+                                    <th>نام خریدار</th>
+                                    <th>قیمت (افغانی )</th>
+                                    <th>دسته‌بندی</th>
+                                    <th>تاریخ ثبت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- داده‌ها توسط JavaScript پر می‌شود -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content" id="adminContent">
+                <div class="info-box">
+                    <i class="fas fa-user-shield"></i>
+                    <div>
+                        <strong>پنل مدیریت سیستم</strong> - شما به عنوان مدیر سیستم می‌توانید تمامی خریدهای ثبت‌شده توسط کاربران را مشاهده کنید. داده‌های جدول هر 24 ساعت به‌طور خودکار بروزرسانی می‌شوند.
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-users"></i> لیست کاربران سیستم</h3>
+                        <div class="excel-actions">
+                            <button id="exportUsersExcel" class="btn btn-excel">
+                                <i class="fas fa-file-excel"></i> خروجی اکسل کاربران
+                            </button>
+                            <button id="printUsers" class="btn btn-print">
+                                <i class="fas fa-print"></i> چاپ لیست کاربران
+                            </button>
+                        </div>
+                    </div>
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ردیف</th>
+                                <th>نام کاربری</th>
+                                <th>نقش</th>
+                                <th>ایمیل</th>
+                                <th>وضعیت</th>
+                                <th>تعداد خریدها</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- داده‌ها توسط JavaScript پر می‌شود -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-shopping-bag"></i> تمام خریدهای ثبت‌شده توسط همه کاربران</h3>
+                        <div class="excel-actions">
+                            <button id="exportAllPurchasesExcel" class="btn btn-excel">
+                                <i class="fas fa-file-excel"></i> خروجی اکسل تمام خریدها
+                            </button>
+                            <button id="printAllPurchases" class="btn btn-print">
+                                <i class="fas fa-print"></i> چاپ تمام خریدها
+                            </button>
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 15px; color: #666; padding: 0 25px;">این خریدها هم توسط کاربران و هم توسط شما (مدیر) قابل مشاهده هستند.</p>
+                    <table id="allUsersPurchasesTable">
+                        <thead>
+                            <tr>
+                                <th>ردیف</th>
+                                <th>نام کالا</th>
+                                <th>نام خریدار</th>
+                                <th>کاربر ثبت‌کننده</th>
+                                <th>قیمت (افغانی )</th>
+                                <th>دسته‌بندی</th>
+                                <th>تاریخ ثبت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- داده‌ها توسط JavaScript پر می‌شود -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
